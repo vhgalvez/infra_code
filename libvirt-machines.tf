@@ -36,11 +36,15 @@ resource "libvirt_volume" "vm-disk" {
   pool           = libvirt_pool.volumetmp.name
   format         = "qcow2"
 }
+
 data "ct_config" "ignition" {
+  for_each = toset(var.machines)
+
   content = templatefile("${path.module}/cl/${each.value}.yaml.tmpl", {
     ssh_keys = join("\n", var.ssh_keys)
   })
 }
+
 resource "libvirt_domain" "machine" {
   for_each = toset(var.machines)
 
